@@ -22,7 +22,7 @@ def autoDownLoad(url,add):
         opener = request.build_opener()
         opener.addheaders = [
             ('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'),
-            ('Accept','application/json,*/*;q=0.01,*/*;access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiZTQwYzRmZC1hZWY4LTQ1MGQtOTBlZC00M2ViNzUwMzMzNGYiLCJpZCI6NDQsImFzc2V0cyI6eyIxNDYxIjp7InR5cGUiOiIzRFRJTEVTIn19LCJzcmMiOiJiMTBjN2E3Mi03ZGZkLTRhYmItOWEzNC1iOTdjODEzMzM5MzgiLCJpYXQiOjE1NTI2MzkxNjMsImV4cCI6MTU1MjY0Mjc2M30.ynJTQoI7jUSjtlucC_c0-A46FVHRBC6Nmi5XkbHKEj0')]
+            ('Accept','application/json,*/*;q=0.01,*/*;access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiMzMxZTAwOC0zNzNjLTRhYjktYjkxYi00NDk1MmJhY2YwOGMiLCJpZCI6NDQsImFzc2V0cyI6eyIxNDYxIjp7InR5cGUiOiIzRFRJTEVTIn19LCJzcmMiOiJiMTBjN2E3Mi03ZGZkLTRhYmItOWEzNC1iOTdjODEzMzM5MzgiLCJpYXQiOjE1NTI2NDM3MzQsImV4cCI6MTU1MjY0NzMzNH0.4H2EU2AqaEOQE20uO7IEdvlnVYilJFzSYFSImvQ63HM')]
         request.install_opener(opener)
         a, b = request.urlretrieve(url, add)
         #a表示地址， b表示返回头
@@ -30,8 +30,10 @@ def autoDownLoad(url,add):
         if 'Content-Encoding' in keyMap and keyMap['Content-Encoding'] == 'gzip':
             with gzip.open(add, 'rb') as g:
                 text = g.read()
-                with gzip.open(add, 'wb') as f:
-                    f.write(text)
+                objectFile = open(add, 'rb+')#以读写模式打开
+                objectFile.seek(0, 0)
+                objectFile.write(text)
+                objectFile.close()
 
         return True
   
