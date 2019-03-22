@@ -18,6 +18,8 @@ def getContents(contents, n):
         c = n['content']
         if 'url' in c:
             contents.append(c['url'])
+        if 'uri' in c:
+            contents.append(c['uri'])
 
 
     if 'children' in n:
@@ -32,7 +34,7 @@ def autoDownLoad(url,add,index):
         opener = request.build_opener()
         opener.addheaders = [
             ('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'),
-            ('Accept','application/json,*/*;q=0.01,*/*;access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNTc2MzcxNi1hYjZhLTRjY2YtOGQyNi1hOTNlZDA1NTQxY2EiLCJpZCI6NDQsImFzc2V0cyI6eyIxNDYxIjp7InR5cGUiOiIzRFRJTEVTIn19LCJzcmMiOiJiMTBjN2E3Mi03ZGZkLTRhYmItOWEzNC1iOTdjODEzMzM5MzgiLCJpYXQiOjE1NTI4OTIzNTksImV4cCI6MTU1Mjg5NTk1OX0.SR7QXn7wXAFvXrHRSpd29NtKXGihf_QPlEITPkhpehM')]
+            ('Accept','application/json,*/*;q=0.01,*/*;access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlMDZhZGY5My0wZTBkLTQxN2YtYjc4Yy1mNjliZjNlNjQwN2EiLCJpZCI6MjU5LCJhc3NldHMiOnsiMTY0MjEiOnsidHlwZSI6IjNEVElMRVMifX0sInNyYyI6ImUxZDdlYmVjLTVkMzUtNDY1Ny04NWExLTgyNDYwY2M5MGQ2NSIsImlhdCI6MTU1MzI0MDIwNywiZXhwIjoxNTUzMjQzODA3fQ.2vHRRovWy8KtrcvAv5pCp-YikMEpt11EpatHKst-0w4')]
         request.install_opener(opener)
         a, b = request.urlretrieve(url, add)
         #a表示地址， b表示返回头
@@ -99,7 +101,7 @@ class CrawlManager(object):
         self.download_pool.autoDownLoad(url, file, index, self._download_future_callback)
 
 if __name__ == "__main__":
-    baseurl = 'https://assets.cesium.com/1461/tileset.json?v=1'
+    baseurl = 'https://assets.cesium.com/16421/tileset.json?v=1'
     savedir = 'E:/3dtiles/ttt'
     start = 0
 
