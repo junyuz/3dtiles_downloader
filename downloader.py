@@ -29,20 +29,51 @@ def getContents(contents, n):
             getContents(contents,c)
     return
 
-def autoDownLoad(url,add,index):
+def readContents(url,saveDir,name,contents):
+    saveFile = saveDir + '/'+ name
+    i,r = autoDownLoad(url+'/'+name,saveFile,0)
+    if not r:
+        sys.exit(2)
+    tileset = None
+    try:
+        f = codecs.open(saveFile,'r','utf-8')
+        s = f.read()
+        f.close()
+
+        tileset = json.loads(s)
+    except Exception as e:
+        print (e)
+
+    getContents(contents,tileset['root'])
+    for i in range(0,len(contents)):
+        c = contents[i]
+        if c.endswith('.json'):
+            contents.remove(c)
+            readContents(url,saveDir,c,contents)
+        # else :
+        #     file = savedir+'/' + c  
+        #     dirname =  os.path.dirname(file)
+        #     if not os.path.exists(dirname):
+        #         os.makedirs(dirname)
+
+        #     dUrl = url+'/'+c
+        #     autoDownLoad(dUrl,file,i)
+
+
+def autoDownLoad(url,saveFile,index):
     try:
         opener = request.build_opener()
         opener.addheaders = [
             ('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'),
             ('Accept','application/json,*/*;q=0.01,*/*;access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlMDZhZGY5My0wZTBkLTQxN2YtYjc4Yy1mNjliZjNlNjQwN2EiLCJpZCI6MjU5LCJhc3NldHMiOnsiMTY0MjEiOnsidHlwZSI6IjNEVElMRVMifX0sInNyYyI6ImUxZDdlYmVjLTVkMzUtNDY1Ny04NWExLTgyNDYwY2M5MGQ2NSIsImlhdCI6MTU1MzI0MDIwNywiZXhwIjoxNTUzMjQzODA3fQ.2vHRRovWy8KtrcvAv5pCp-YikMEpt11EpatHKst-0w4')]
         request.install_opener(opener)
-        a, b = request.urlretrieve(url, add)
+        a, b = request.urlretrieve(url, saveFile)
         #a表示地址， b表示返回头
         keyMap = dict(b)
         if 'Content-Encoding' in keyMap and keyMap['Content-Encoding'] == 'gzip':
-            with gzip.open(add, 'rb') as g:
+            with gzip.open(saveFile, 'rb') as g:
                 text = g.read()
-                objectFile = open(add, 'rb+')#以读写模式打开
+                objectFile = open(saveFile, 'rb+')#以读写模式打开
                 objectFile.seek(0, 0)
                 objectFile.write(text)
                 objectFile.close()
@@ -51,11 +82,11 @@ def autoDownLoad(url,add,index):
   
     except request.ContentTooShortError:
         print ('Network conditions is not good.Reloading.')
-        autoDownLoad(url,add)
+        autoDownLoad(url,saveFile)
     except socket.timeout:
         print ('fetch ', url,' exceedTime ')
         try:
-            urllib.urlretrieve(url,add)
+            urllib.urlretrieve(url,saveFile)
         except:
             print ('reload failed')
     except Exception:
@@ -101,7 +132,7 @@ class CrawlManager(object):
         self.download_pool.autoDownLoad(url, file, index, self._download_future_callback)
 
 if __name__ == "__main__":
-    baseurl = 'https://assets.cesium.com/16421/tileset.json?v=1'
+    baseurl = 'http://data.marsgis.cn//3dtiles/max-jcz'
     savedir = 'E:/3dtiles/ttt'
     start = 0
 
@@ -137,36 +168,8 @@ if __name__ == "__main__":
     if not os.path.exists(savedir):
         os.makedirs(savedir)
 
-    uu = parse.urlparse(baseurl)
-    tileseturl = uu.scheme + "://" + uu.netloc  + uu.path
-    if not tileseturl.endswith('tileset.json'):
-        tileseturl +=  '/tileset.json'
-
-    baseurl = tileseturl[0:tileseturl.find('tileset.json')]
-
-    tilesetfile = savedir+'/tileset.json'
-    i,r = autoDownLoad(tileseturl,tilesetfile,0)
-    if not r:
-        sys.exit(2)
-    
-
-
-    print ('download tileset.json success')
-
-    #解析
-    tileset = None
-    try:
-        f = codecs.open(tilesetfile,'r','utf-8')
-        s = f.read()
-        f.close()
-
-        tileset = json.loads(s)
-    except Exception as e:
-        print (e)    
-
     contents = []
-    getContents(contents,tileset['root'])
-
+    readContents(baseurl,savedir,'tileset.json',contents)
     crawManager = CrawlManager()
 
     for i in range(start,len(contents)):
@@ -178,5 +181,5 @@ if __name__ == "__main__":
         if not os.path.exists(dirname):
             os.makedirs(dirname) 
 
-        url = baseurl + c + '?' + uu.query
+        url = baseurl + '/'+ c
         crawManager.start_runner(url, file, i, len(contents))
